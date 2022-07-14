@@ -1,3 +1,17 @@
+DATA CLEANING: Performed in Exel
+-No Duplicates Found
+-Whitespace Trimmed on 8 rows
+-Deleted 2 Blank Rows
+-Deleted Black Columns H and I
+-Format Date Joined Column to Date
+-Inserted “N/A” into 17 Rows with no Investors information
+
+
+
+
+
+
+
 --Let's start off with creating a table in PgAdmin and importing our cleaned data
 CREATE TABLE unicorn(
 	company VARCHAR(75) NOT NULL,
