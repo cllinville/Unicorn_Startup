@@ -1,0 +1,95 @@
+--Let's start off with creating a table in PgAdmin and importing our cleaned data
+CREATE TABLE unicorn(
+	company VARCHAR(75) NOT NULL,
+	valuation FLOAT NOT NULL,
+	date_joined DATE NOT NULL,
+	country VARCHAR(75) NOT NULL,
+	city VARCHAR (75) NOT NULL,
+	industry VARCHAR(75) NOT NULL,
+	investors VARCHAR (100) NOT NULL
+	
+);
+
+SELECT * FROM unicorn;
+
+--First lets see how many companies there are per country and their percentages
+SELECT COUNT(company), country, ROUND(count(*) * 100.0 / (select count(*) from unicorn),2) AS Percent
+FROM unicorn
+GROUP BY country
+ORDER BY 1 DESC;
+
+--Now lets see the total valuations per country per year
+SELECT EXTRACT(year FROM date_joined) AS year,
+		country, cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuations
+FROM unicorn
+GROUP BY EXTRACT(year FROM date_joined), country
+ORDER BY 1; 
+
+--lets checkout the total industries per country
+SELECT COUNT(DISTINCT(industry)) AS industry_count, country
+FROM unicorn
+GROUP BY country
+ORDER BY 1 DESC;
+
+--Now lets see the total industry count per country per year
+SELECT EXTRACT(year FROM date_joined) AS year,
+		country, COUNT(DISTINCT(industry)) AS industry_count
+FROM unicorn
+GROUP BY EXTRACT(year FROM date_joined), country
+ORDER BY 1;
+
+--Total count and valuation per industry and country
+SELECT industry, country, COUNT(industry) AS total_count, cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuation
+FROM unicorn
+GROUP BY industry, country
+ORDER BY 1;
+
+--Total count and valuation per industry
+SELECT industry,COUNT(industry) AS total_count, cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuation
+FROM unicorn
+GROUP BY industry
+ORDER BY 2 DESC;
+
+
+--Total count and valuation per industry per year
+SELECT industry, COUNT(industry) AS total_count, cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuation,
+	EXTRACT(year FROM date_joined) AS year
+FROM unicorn
+GROUP BY industry, year
+ORDER BY 2 DESC;
+
+--Countries with Decacorn companies and their total valuation
+SELECT country, COUNT(company) AS total_decacorn_companies, 
+	cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuation 
+FROM unicorn
+WHERE valuation > 10
+GROUP BY country
+ORDER BY 2;
+
+--Countries with Hectocorn companies and their total valuation
+SELECT country, COUNT(company) AS total_decacorn_companies, 
+	cast(SUM(valuation) as DECIMAL(6,2)) AS total_valuation 
+FROM unicorn
+WHERE valuation > 100
+GROUP BY country
+ORDER BY 2;
+
+--Number of Decacorn companies created per year by country
+SELECT country, extract(year FROM date_joined) AS year, cast(COUNT(company) AS FLOAT)
+FROM unicorn
+WHERE valuation > 10
+GROUP BY country, date_joined
+ORDER BY 1
+--Number of decacorn companies created per year by industry and their total valuation
+SELECT industry, extract(year FROM date_joined) AS year, cast(COUNT(company) AS FLOAT), valuation
+FROM unicorn
+WHERE valuation > 10.0 AND  valuation < 100.0
+GROUP BY industry, date_joined, valuation
+ORDER BY 1
+
+--Number of Hectocorn companies, their industry, total valuation and country 
+SELECT industry, country, extract(year FROM date_joined) AS year, cast(COUNT(company) AS FLOAT), valuation
+FROM unicorn
+WHERE valuation > 100.0
+GROUP BY industry, date_joined, valuation, country
+ORDER BY 1
